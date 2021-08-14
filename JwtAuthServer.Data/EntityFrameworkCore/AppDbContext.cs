@@ -18,9 +18,8 @@ namespace JwtAuthServer.Data.EntityFrameworkCore
         }
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.ApplyConfiguration(new UserAppConfiguration());
-            builder.ApplyConfiguration(new ProductConfiguration());
-            builder.ApplyConfiguration(new UserAppConfiguration());
+            builder.ApplyConfigurationsFromAssembly(GetType().Assembly);
+           
             base.OnModelCreating(builder);
         }
         public DbSet<Product> Products { get; set; }
