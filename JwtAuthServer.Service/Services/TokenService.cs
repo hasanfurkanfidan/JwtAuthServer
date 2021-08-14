@@ -3,11 +3,14 @@ using JwtAuthServer.Core.Dtos;
 using JwtAuthServer.Core.Models;
 using JwtAuthServer.Core.Services;
 using JwtAuthServer.Service.Extentions;
+using JwtAuthServer.Service.Helpers;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using SharedLibrary.Configurations;
+using SharedLibrary.Services;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -20,6 +23,7 @@ namespace JwtAuthServer.Service.Services
     {
         private readonly CustomTokenOption _tokenOption;
         private readonly UserManager<UserApp> _userManager;
+
         public TokenService(UserManager<UserApp> userManager, IOptions<CustomTokenOption> options)
         {
             _userManager = userManager;
@@ -34,9 +38,29 @@ namespace JwtAuthServer.Service.Services
             }
             return Convert.ToBase64String(numberByte);
         }
-        public TokenDto CreateToken(UserApp userApp)
+        public  TokenDto CreateToken(UserApp userApp)
         {
-            throw new NotImplementedException();
+            //Getting accestokenexpiration
+            var accessTokenExpiration = DateTime.Now.AddMinutes(_tokenOption.AccessTokenExpiration);
+            var refreshTokenExpiration = DateTime.Now.AddMinutes(_tokenOption.RefreshTokenExpiration);
+            //Getting symetric security key
+
+            var securityKey = SignService.GetSymetricSecurityKey(_tokenOption.SecurityKey);
+            //Getting signing credential
+            var signInCredential = SignInCredentialHelper.GetSignInCredential(securityKey);
+
+            var token = JwtSecurityTokenHelper.CreateJwtSecurityToken(_tokenOption.Issuer, accessTokenExpiration, SetClaims(userApp, _tokenOption.Audience), signInCredential);
+
+            var handler = new JwtSecurityTokenHandler();
+
+            var jwtToken = handler.WriteToken(token);
+            return new TokenDto
+            {
+                AccessToken = jwtToken,
+                AccessTokenExpiration = accessTokenExpiration,
+                RefreshToken = CreateRefreshToken(),
+                RefreshTokenExpiration = refreshTokenExpiration
+            };
         }
 
         public ClientTokenDto CreateClientTokenDto(Client client)
@@ -56,7 +80,7 @@ namespace JwtAuthServer.Service.Services
             return claims;
         }
 
-        private List<Claim>GetClaimsByClient(Client client)
+        private List<Claim> GetClaimsByClient(Client client)
         {
             var claims = new List<Claim>();
             claims.SetAudiencesByClient(client);
