@@ -29,7 +29,7 @@ namespace JwtAuthServer.AuthApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<CustomTokenOption>(Configuration.GetSection("TokenOptions"));
-            services.Configure<Client>(Configuration.GetSection("Clients"));
+            services.Configure<List<Client>>(Configuration.GetSection("Clients"));
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
