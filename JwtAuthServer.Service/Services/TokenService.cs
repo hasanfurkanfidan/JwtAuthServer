@@ -42,6 +42,8 @@ namespace JwtAuthServer.Service.Services
         {
             //Getting accestokenexpiration
             var accessTokenExpiration = DateTime.Now.AddMinutes(_tokenOption.AccessTokenExpiration);
+            //Getting refreshtokenexpiration
+
             var refreshTokenExpiration = DateTime.Now.AddMinutes(_tokenOption.RefreshTokenExpiration);
             //Getting symetric security key
 
@@ -65,7 +67,23 @@ namespace JwtAuthServer.Service.Services
 
         public ClientTokenDto CreateClientTokenDto(Client client)
         {
-            throw new NotImplementedException();
+            var accessTokenExpiration = DateTime.Now.AddMinutes(_tokenOption.AccessTokenExpiration);
+            //Getting symetric security key
+            var securityKey = SignService.GetSymetricSecurityKey(_tokenOption.SecurityKey);
+            //Getting signing credential
+            var signInCredential = SignInCredentialHelper.GetSignInCredential(securityKey);
+
+            var token = JwtSecurityTokenHelper.CreateJwtSecurityToken(_tokenOption.Issuer, accessTokenExpiration, GetClaimsByClient(client), signInCredential);
+
+            var handler = new JwtSecurityTokenHandler();
+
+            var jwtToken = handler.WriteToken(token);
+            return new ClientTokenDto
+            {
+                AccessToken = jwtToken,
+                AccessTokenExpiration = accessTokenExpiration,
+               
+            };
         }
         private List<Claim> SetClaims(UserApp userApp, List<string> audiences)
         {
