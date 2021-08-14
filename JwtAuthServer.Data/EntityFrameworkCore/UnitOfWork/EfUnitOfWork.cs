@@ -1,4 +1,5 @@
 ﻿using JwtAuthServer.Core.UnitOfWork;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace JwtAuthServer.Data.EntityFrameworkCore.UnitOfWork
 {
     public class EfUnitOfWork : IUnitOfWork
     {
-        private readonly AppDbContext _context;
+        private readonly DbContext _context;
         public EfUnitOfWork(AppDbContext appDbContext)
         {
             _context = appDbContext;

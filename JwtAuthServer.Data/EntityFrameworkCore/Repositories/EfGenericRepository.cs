@@ -16,7 +16,7 @@ namespace JwtAuthServer.Data.EntityFrameworkCore.Repositories
         public EfGenericRepository(AppDbContext appDbContext)
         {
             _context = appDbContext;
-            _dbSet = _context.Set<TEntity>();
+            _dbSet = appDbContext.Set<TEntity>();
         }
         public async Task AddAsync(TEntity entity)
         {
@@ -30,7 +30,12 @@ namespace JwtAuthServer.Data.EntityFrameworkCore.Repositories
 
         public async Task<TEntity> GetByIdAsync(int id)
         {
-            return await _dbSet.FindAsync(id);
+            var entity =await _dbSet.FindAsync(id);
+            if (entity != null)
+            {
+                _context.Entry(entity).State = EntityState.Detached;
+            }
+            return entity;
         }
 
         public void Remove(TEntity entity)
