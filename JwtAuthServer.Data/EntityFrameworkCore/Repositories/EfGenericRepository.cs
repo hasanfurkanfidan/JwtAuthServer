@@ -17,6 +17,7 @@ namespace JwtAuthServer.Data.EntityFrameworkCore.Repositories
         {
             _context = appDbContext;
             _dbSet = appDbContext.Set<TEntity>();
+
         }
         public async Task AddAsync(TEntity entity)
         {
