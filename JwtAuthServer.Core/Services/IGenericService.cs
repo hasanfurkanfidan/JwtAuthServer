@@ -15,6 +15,6 @@ namespace JwtAuthServer.Core.Services
         Task AddAsync(TEntity entity);
         void Remove(TEntity entity);
         Response<NoDataDto> Update(TEntity entity);
-        Response<IEnumerable<TDto>> Where(Expression<Func<TEntity, bool>> expression);
+        Task<Response<IEnumerable<TDto>>> Where(Expression<Func<TEntity, bool>> expression);
     }
 }
