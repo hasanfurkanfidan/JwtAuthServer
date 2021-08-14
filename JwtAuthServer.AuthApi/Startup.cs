@@ -1,3 +1,4 @@
+using JwtAuthServer.Core.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -28,7 +29,7 @@ namespace JwtAuthServer.AuthApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<CustomTokenOption>(Configuration.GetSection("TokenOptions"));
-
+            services.Configure<Client>(Configuration.GetSection("Clients"));
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
