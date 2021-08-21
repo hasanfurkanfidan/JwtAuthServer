@@ -4,6 +4,7 @@ using JwtAuthServer.Core.Repositories;
 using JwtAuthServer.Core.Services;
 using JwtAuthServer.Core.UnitOfWork;
 using JwtAuthServer.Data.EntityFrameworkCore;
+using JwtAuthServer.Data.EntityFrameworkCore.Repositories;
 using JwtAuthServer.Data.EntityFrameworkCore.UnitOfWork;
 using JwtAuthServer.Service.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -45,7 +46,7 @@ namespace JwtAuthServer.AuthApi
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ITokenService, TokenService>();
-            services.AddScoped(typeof(IGenericRepository<>), typeof(IGenericRepository<>));
+            services.AddScoped(typeof(IGenericRepository<>), typeof(EfGenericRepository<>));
             services.AddScoped(typeof(IGenericService<,>), typeof(GenericService<,>));
             services.AddScoped<IUnitOfWork, EfUnitOfWork>();
             services.AddDbContext<AppDbContext>(opt =>
