@@ -1,14 +1,25 @@
 using JwtAuthServer.Core.Configuration;
+using JwtAuthServer.Core.Models;
+using JwtAuthServer.Core.Repositories;
+using JwtAuthServer.Core.Services;
+using JwtAuthServer.Core.UnitOfWork;
+using JwtAuthServer.Data.EntityFrameworkCore;
+using JwtAuthServer.Data.EntityFrameworkCore.UnitOfWork;
+using JwtAuthServer.Service.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using SharedLibrary.Configurations;
+using SharedLibrary.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +40,55 @@ namespace JwtAuthServer.AuthApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<CustomTokenOption>(Configuration.GetSection("TokenOptions"));
+            var tokenOptions = Configuration.GetSection("GetSection").Get<CustomTokenOption>();
             services.Configure<List<Client>>(Configuration.GetSection("Clients"));
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped(typeof(IGenericRepository<>), typeof(IGenericRepository<>));
+            services.AddScoped(typeof(IGenericService<,>), typeof(GenericService<,>));
+            services.AddScoped<IUnitOfWork, EfUnitOfWork>();
+            services.AddDbContext<AppDbContext>(opt =>
+            {
+                opt.UseSqlServer(Configuration.GetConnectionString("SqlServer"), sqlopt =>
+                 {
+                     sqlopt.MigrationsAssembly("JwtAuthServer.Data");
+                 });
+            });
+            services.AddIdentity<UserApp, IdentityRole>(opt =>
+            {
+                opt.User.RequireUniqueEmail = true;
+                opt.Password.RequireNonAlphanumeric = false;
+                opt.Password.RequireUppercase = false;
+
+            }).AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
+
+
+
+            //Gelen Token Doðrulama
+            services.AddAuthentication(opt =>
+            {
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+            }).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, opt =>
+            {
+                opt.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+                {
+                    ValidIssuer = tokenOptions.Issuer,
+                    ValidAudience = tokenOptions.Audience[0],
+                    IssuerSigningKey = SignService.GetSymetricSecurityKey(tokenOptions.SecurityKey),
+                    ValidateIssuerSigningKey = true,
+                    ValidateAudience = true,
+                    ValidateIssuer = true,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
+                };
+            });
+
+
+
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -50,7 +109,7 @@ namespace JwtAuthServer.AuthApi
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
