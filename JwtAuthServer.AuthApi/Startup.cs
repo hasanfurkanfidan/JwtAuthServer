@@ -41,7 +41,7 @@ namespace JwtAuthServer.AuthApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<CustomTokenOption>(Configuration.GetSection("TokenOptions"));
-            var tokenOptions = Configuration.GetSection("GetSection").Get<CustomTokenOption>();
+            var tokenOptions = Configuration.GetSection("TokenOptions").Get<CustomTokenOption>();
             services.Configure<List<Client>>(Configuration.GetSection("Clients"));
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IUserService, UserService>();

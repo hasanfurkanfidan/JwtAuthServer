@@ -30,6 +30,7 @@ namespace JwtAuthServer.Service.Services
             var createdUser = new UserApp();
             createdUser.Email = createUserDto.Email;
             createdUser.UserName = createUserDto.UserName;
+            createdUser.City = createUserDto.City;
             var result = await _userManager.CreateAsync(createdUser, createUserDto.Password);
            
             if (!result.Succeeded)

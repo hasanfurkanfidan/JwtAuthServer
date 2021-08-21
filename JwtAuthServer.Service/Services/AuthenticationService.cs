@@ -41,11 +41,11 @@ namespace JwtAuthServer.Service.Services
             var user = await _userManager.FindByEmailAsync(loginDto.Email);
             if (user == null)
             {
-                Response<TokenDto>.Fail(new ErrorDto("Email veya parola yanlış", true), 400);
+               return Response<TokenDto>.Fail(new ErrorDto("Email veya parola yanlış", true), 400);
             }
             if (!await _userManager.CheckPasswordAsync(user, loginDto.Password))
             {
-                Response<TokenDto>.Fail(new ErrorDto("Email veya parola yanlış", true), 400);
+               return Response<TokenDto>.Fail(new ErrorDto("Email veya parola yanlış", true), 400);
             }
             var token = _tokenService.CreateToken(user);
             var userRefreshToken = await _userRefreshTokenService.Where(x => x.UserId == user.Id).SingleOrDefaultAsync();
