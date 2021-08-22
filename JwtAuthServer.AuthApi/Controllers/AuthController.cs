@@ -1,4 +1,5 @@
-﻿using JwtAuthServer.Core.Dtos;
+﻿using JwtAuthServer.AuthApi.Models;
+using JwtAuthServer.Core.Dtos;
 using JwtAuthServer.Core.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -42,6 +43,12 @@ namespace JwtAuthServer.AuthApi.Controllers
         public async Task<IActionResult>RevokeRefreshToken(string refreshToken)
         {
             var response = await _authenticationService.RevokeRefreshToken(refreshToken);
+            return Ok(response);
+        }
+        [HttpPost]
+        public async Task<IActionResult>CreateTokenByRefreshToken(RefreshTokenDto model)
+        {
+            var response = await _authenticationService.CreateTokenByRefreshToken(model.Code);
             return Ok(response);
         }
     }
