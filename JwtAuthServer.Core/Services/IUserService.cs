@@ -12,5 +12,6 @@ namespace JwtAuthServer.Core.Services
     {
         Task<Response<UserAppDto>> GetUserByUserNameAsync(string userName);
         Task<Response<UserAppDto>> CreateUserAsync(CreateUserDto createUserDto);
+        Task<Response<NoDataDto>> AddToRoleAsync(string userId, string role);
     }
 }

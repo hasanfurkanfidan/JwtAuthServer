@@ -32,5 +32,17 @@ namespace JwtAuthServer.AuthApi.Controllers
             var response = await _authenticationService.CreateTokenAsync(model);
             return Ok(response);
         }
+        [HttpPost]
+        public async Task<IActionResult>CreateTokenByClient(ClientLoginDto model)
+        {
+            var response =  _authenticationService.CreateTokenByClient(model);
+            return Ok(response);
+        }
+        [HttpPost]
+        public async Task<IActionResult>RevokeRefreshToken(string refreshToken)
+        {
+            var response = await _authenticationService.RevokeRefreshToken(refreshToken);
+            return Ok(response);
+        }
     }
 }

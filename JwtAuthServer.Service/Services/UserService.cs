@@ -50,5 +50,11 @@ namespace JwtAuthServer.Service.Services
             }
             return Response<UserAppDto>.Success(ObjectMapper.Mapper.Map<UserAppDto>(user), 200);
         }
+        public async Task<Response<NoDataDto>> AddToRoleAsync(string role,string userId)
+        {
+            var userApp = await _userManager.FindByIdAsync(userId);
+            await _userManager.AddToRoleAsync(userApp, role);
+            return Response<NoDataDto>.Success(200);
+        }
     }
 }
